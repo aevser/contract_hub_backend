@@ -3,7 +3,9 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Counterparty\Counterparty;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
@@ -50,12 +52,10 @@ class User extends Authenticatable
         ];
     }
 
-    // Вспомогательные методы
+    // Связи
 
-    public static function booted(): void
+    public function counterparties(): HasMany
     {
-        static::saving(function ($user) {
-            if ($user->password) { $user->password = Hash::make($user->password); }
-        });
+        return $this->hasMany(Counterparty::class);
     }
 }

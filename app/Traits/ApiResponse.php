@@ -75,8 +75,8 @@ trait ApiResponse
     {
         return [
             'total' => $paginator->total(),
-            'current_page' => $paginator->currentPage(),
-            'per_page' => $paginator->perPage()
+            'currentPage' => $paginator->currentPage(),
+            'perPage' => $paginator->perPage()
         ];
     }
 }
