@@ -24,9 +24,9 @@ class CounterpartyLogService
 
     public function logError(?int $userId, ?string $inn, string $message): void
     {
-        if ($userId) { $message .= '| ИНН: ' . $inn.'.'; }
+        if ($userId) { $message .= '| UserId: ' . $userId .'.'; }
 
-        if ($inn) { $message .= '| Пользователь: ' . $userId .'.'; }
+        if ($inn) { $message .= '| INN: ' . $inn.'.'; }
 
         $this->create(
             counterpartyId: null,

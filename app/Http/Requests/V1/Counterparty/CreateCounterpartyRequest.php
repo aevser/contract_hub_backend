@@ -30,10 +30,10 @@ class CreateCounterpartyRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'inn.required' => 'ИНН обязателен для заполнения',
-            'inn.string' => 'ИНН должен быть строкой',
-            'inn.regex' => 'ИНН должен содержать 10 цифр (для организаций) или 12 цифр (для ИП)',
-            'inn.unique' => 'Контрагент с таким ИНН уже добавлен в систему'
+            'inn.required' => __('validations.counterparty.inn.required'),
+            'inn.string' => __('validations.counterparty.inn.string'),
+            'inn.regex' => __('validations.counterparty.inn.regex'),
+            'inn.unique' => __('validations.counterparty.inn.unique')
         ];
     }
 }

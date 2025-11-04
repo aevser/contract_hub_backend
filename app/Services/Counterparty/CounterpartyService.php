@@ -30,13 +30,13 @@ class CounterpartyService
     {
         $data = $this->getCompanyByInn(userId: $DTO->userId, inn: $DTO->inn);
 
-        if (!$data) { return CounterpartyServiceResponseDTO::error(message: 'Не удалось получить данные по ИНН.'); }
+        if (!$data) { return CounterpartyServiceResponseDTO::error(message: __('responses.counterparty.not_found')); }
 
         $createDTO = CreateCounterpartyDTO::fromCreateDTO(counterpartyDTO: $DTO, counterpartyApiDTO: $data);
 
         $counterparty = $this->counterpartyRepository->create(DTO: $createDTO);
 
-        $this->counterpartyLogService->logSuccess(counterpartyId: $counterparty->id, message: 'Данные успешно получены.');
+        $this->counterpartyLogService->logSuccess(counterpartyId: $counterparty->id, message: __('responses.counterparty.success'));
 
         return CounterpartyServiceResponseDTO::success(counterparty: $counterparty);
     }
@@ -48,14 +48,14 @@ class CounterpartyService
             $response = $this->sendData(inn: $inn);
 
             if (!$response->successful()) {
-                $this->counterpartyLogService->logError(userId: $userId, inn: $inn, message: 'Ошибка DaData. Статус: ' . $response->status());
+                $this->counterpartyLogService->logError(userId: $userId, inn: $inn, message: __('responses.counterparty.da_data_error') . $response->status());
                 return null;
             }
 
             return $this->parseResponse(response: $response, userId: $userId, inn: $inn);
 
         } catch (\Exception $exception) {
-            $this->counterpartyLogService->logError(userId: $userId, inn: $inn, message: 'Исключение при запросе DaData: ' . $exception->getMessage());
+            $this->counterpartyLogService->logError(userId: $userId, inn: $inn, message: __('responses.counterparty.da_data_exception') . $exception->getMessage());
             return null;
         }
     }
@@ -66,12 +66,12 @@ class CounterpartyService
         $suggestions = $response->json('suggestions');
 
         if (empty($suggestions)) {
-            $this->counterpartyLogService->logError(userId: $userId, inn: $inn, message: 'Данные по ИНН не найдены.');
+            $this->counterpartyLogService->logError(userId: $userId, inn: $inn, message: __('responses.counterparty.inn_not_found'));
             return null;
         }
 
         if (!isset($suggestions[0]['data'])) {
-            $this->counterpartyLogService->logError(userId: $userId, inn: $inn, message: 'Некорректный формат ответа от DaData.');
+            $this->counterpartyLogService->logError(userId: $userId, inn: $inn, message: __('responses.counterparty.invalid_format'));
             return null;
         }
 

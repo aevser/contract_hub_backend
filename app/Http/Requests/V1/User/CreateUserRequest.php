@@ -3,7 +3,6 @@
 namespace App\Http\Requests\V1\User;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Password;
 
 class CreateUserRequest extends FormRequest
 {
@@ -39,25 +38,25 @@ class CreateUserRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'lastname.string' => 'Фамилия должна быть строкой',
-            'lastname.max' => 'Фамилия не должна превышать 255 символов',
+            'lastname.string' => __('validations.user.lastname.string'),
+            'lastname.max' => __('validations.user.lastname.max'),
 
-            'name.string' => 'Имя должно быть строкой',
-            'name.max' => 'Имя не должно превышать 255 символов',
+            'name.string' => __('validations.user.name.string'),
+            'name.max' => __('validations.user.name.max'),
 
-            'patronymic.string' => 'Отчество должно быть строкой',
-            'patronymic.max' => 'Отчество не должно превышать 255 символов',
+            'patronymic.string' => __('validations.user.patronymic.string'),
+            'patronymic.max' => __('validations.user.patronymic.max'),
 
-            'email.required' => 'Email обязателен для заполнения',
-            'email.string' => 'Email должен быть строкой',
-            'email.email' => 'Введите корректный email адрес',
-            'email.max' => 'Email не должен превышать 255 символов',
-            'email.unique' => 'Пользователь с таким email уже существует',
+            'email.required' => __('validations.user.email.required'),
+            'email.string' => __('validations.user.email.string'),
+            'email.email' => __('validations.user.email.email'),
+            'email.max' => __('validations.user.email.max'),
+            'email.unique' => __('validations.user.email.unique'),
 
-            'password.required' => 'Пароль обязателен для заполнения',
-            'password.string' => 'Пароль должен быть строкой',
-            'password.min' => 'Пароль должен содержать минимум 6 символов',
-            'password.confirmed' => 'Пароли не совпадают'
+            'password.required' => __('validations.user.password.required'),
+            'password.string' => __('validations.user.password.string'),
+            'password.min' => __('validations.user.password.min'),
+            'password.confirmed' => __('validations.user.password.confirmed.')
         ];
     }
 }
