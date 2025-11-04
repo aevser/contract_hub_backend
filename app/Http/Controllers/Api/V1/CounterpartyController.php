@@ -17,12 +17,56 @@ class CounterpartyController extends Controller
 
     public function __construct(private CounterpartyRepository $counterpartyRepository, private CounterpartyService $counterpartyService){}
 
+    /**
+     * @OA\Get(
+     *     path="/counterparties",
+     *     tags={"Counterparties"},
+     *     summary="Получить контрагентов",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="perPage",
+     *         in="query",
+     *         required=false,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         required=false,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(response=200, description="Список контрагентов"),
+     *     @OA\Response(response=401, description="Неавторизован")
+     * )
+     */
+
     public function index(PaginateRequest $request): JsonResponse
     {
         $counterparties = $this->counterpartyRepository->getAll(filters: $request->validated());
 
         return $this->success(success: true, message: null, data: $counterparties, code: JsonResponse::HTTP_OK);
     }
+
+
+    /**
+     * @OA\Post(
+     *     path="/counterparty",
+     *     tags={"Counterparties"},
+     *     summary="Добавить контрагента",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"inn"},
+     *             @OA\Property(property="inn", type="string", example="7736207543")
+     *         )
+     *     ),
+     *     @OA\Response(response=201, description="Контрагент добавлен"),
+     *     @OA\Response(response=401, description="Неавторизован"),
+     *     @OA\Response(response=404, description="Контрагент не найден"),
+     *     @OA\Response(response=422, description="Ошибка валидации")
+     * )
+     */
 
     public function store(CreateCounterpartyRequest $request): JsonResponse
     {

@@ -14,10 +14,28 @@ class AuthController extends Controller
 
     private const string API_TOKEN = '';
 
+    /**
+     * @OA\Post(
+     *     path="/login",
+     *     tags={"Authentication"},
+     *     summary="Авторизация пользователя",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"email", "password"},
+     *             @OA\Property(property="email", type="string", example="1@1.ru"),
+     *             @OA\Property(property="password", type="string", example="12345678")
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Успешная авторизация"),
+     *     @OA\Response(response=401, description="Неверные данные")
+     * )
+     */
+
     public function login(AuthRequest $request): JsonResponse
     {
         if (!auth()->attempt($request->validated())) {
-            return $this->message(success: false, message: 'Введены неверные данные.', code: JsonResponse::HTTP_UNAUTHORIZED);
+            return $this->message(success: false, message: __('responses.user.unauthorized'), code: JsonResponse::HTTP_UNAUTHORIZED);
         }
 
         $user = auth()->user();
@@ -27,10 +45,21 @@ class AuthController extends Controller
         return $this->auth(success: true, user: $user, token: $token, code: JsonResponse::HTTP_OK);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/logout",
+     *     tags={"Authentication"},
+     *     summary="Выход из системы",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(response=200, description="Успешный выход"),
+     *     @OA\Response(response=401, description="Неавторизован")
+     * )
+     */
+
     public function logout(Request $request): JsonResponse
     {
         $request->user()->tokens()->delete();
 
-        return $this->message(success: true, message: 'Успешно вышли из системы.', code: JsonResponse::HTTP_OK);
+        return $this->message(success: true, message: __('responses.user.logout'), code: JsonResponse::HTTP_OK);
     }
 }
