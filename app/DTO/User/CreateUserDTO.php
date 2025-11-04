@@ -15,9 +15,9 @@ class CreateUserDTO
     public static function fromRequest(array $validated): self
     {
         return new self(
-            lastname: $validated['lastname'],
-            name: $validated['name'],
-            patronymic: $validated['patronymic'],
+            lastname: $validated['lastname'] ?? null,
+            name: $validated['name'] ?? null,
+            patronymic: $validated['patronymic'] ?? null,
             email: $validated['email'],
             password: $validated['password']
         );

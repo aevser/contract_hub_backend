@@ -19,7 +19,7 @@ class RegistrationController extends Controller
     {
         $dto = CreateUserDTO::fromRequest(validated: $request->validated());
 
-        $user = $this->userRepositories->create(dto: $dto);
+        $user = $this->userRepositories->create(DTO: $dto);
 
         return $this->success(success: true, message: 'Пользователь успешно зарегистрирован.', data: $user, code: JsonResponse::HTTP_CREATED);
     }

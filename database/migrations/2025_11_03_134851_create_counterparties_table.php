@@ -51,7 +51,7 @@ return new class extends Migration
         // Логирование
         Schema::create('counterparty_logs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('counterparty_id')->nullable()->constrained('counterparties')->cascadeOnDelete();
+            $table->foreignId('counterpart_id')->nullable()->constrained('counterparties')->cascadeOnDelete();
             $table->foreignId('status_id')->constrained('counterparty_log_statuses')->cascadeOnDelete();
             $table->text('message')->nullable();
             $table->timestamps();

@@ -14,7 +14,7 @@ class UserRepositories
     {
         $data = $DTO->toArray();
 
-        $data['password'] = Hash::make($DTO['password']);
+        $data['password'] = Hash::make($DTO->password);
 
         return $this->user->query()->create($data);
     }

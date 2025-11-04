@@ -10,7 +10,7 @@ class CounterpartyLog extends Model
 {
     protected $table = 'counterparty_logs';
 
-    protected $fillable = ['counterparty_id', 'status_id', 'message'];
+    protected $fillable = ['counterpart_id', 'status_id', 'message'];
 
     // Связи
 
