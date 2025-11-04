@@ -22,8 +22,12 @@ class CounterpartyLogService
         );
     }
 
-    public function logError(string $message): void
+    public function logError(?int $userId, ?string $inn, string $message): void
     {
+        if ($userId) { $message .= '| ИНН: ' . $inn.'.'; }
+
+        if ($inn) { $message .= '| Пользователь: ' . $userId .'.'; }
+
         $this->create(
             counterpartyId: null,
             statusId: $this->counterpartyLogStatusRepository->findByType(CounterpartyLogStatus::ERROR->value),

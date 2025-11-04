@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\DTO\Counterparty\CounterpartyDTO;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\V1\Counterparty\CreateCounterpartyRequest;
 use App\Http\Requests\V1\PaginateRequest;
@@ -25,12 +26,14 @@ class CounterpartyController extends Controller
 
     public function store(CreateCounterpartyRequest $request): JsonResponse
     {
-        $counterparty = $this->counterpartyService->create($request->validated('inn'));
+        $dto = CounterpartyDTO::fromRequest(userId: auth()->id(), validated: $request->validated());
 
-        if (!$counterparty['success']) {
-            return $this->message(success: false, message: $counterparty['message'], code: $counterparty['code']);
+        $counterparty = $this->counterpartyService->create($dto);
+
+        if (!$counterparty->success) {
+            return $this->message(success: false, message: $counterparty->message, code: $counterparty->code);
         }
 
-        return $this->success(success: true, message: 'Инн успешно добавлен для контрагента.', data: $counterparty['data'], code: JsonResponse::HTTP_CREATED);
+        return $this->success(success: true, message: 'ИНН успешно добавлен для контрагента.', data: $counterparty->data, code: JsonResponse::HTTP_CREATED);
     }
 }

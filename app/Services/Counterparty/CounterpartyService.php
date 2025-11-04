@@ -2,7 +2,10 @@
 
 namespace App\Services\Counterparty;
 
-use App\Models\Counterparty\Counterparty;
+use App\DTO\Counterparty\CounterpartyApiDTO;
+use App\DTO\Counterparty\CounterpartyDTO;
+use App\DTO\Counterparty\CounterpartyServiceResponseDTO;
+use App\DTO\Counterparty\CreateCounterpartyDTO;
 use App\Repositories\Counterparty\CounterpartyRepository;
 use App\Services\Counterparty\Log\CounterpartyLogService;
 use Illuminate\Http\Client\Response;
@@ -23,48 +26,58 @@ class CounterpartyService
     }
 
     // Запрос + создание записи
-    public function create(string $inn): array
+    public function create(CounterpartyDTO $DTO): CounterpartyServiceResponseDTO
     {
-        $data = $this->getCompanyByInn(inn: $inn);
+        $data = $this->getCompanyByInn(userId: $DTO->userId, inn: $DTO->inn);
 
-        if (!$data) { return $this->errorResponse(message: 'Не удалось получить данные по ИНН.'); }
+        if (!$data) { return CounterpartyServiceResponseDTO::error(message: 'Не удалось получить данные по ИНН.'); }
 
-        $counterparty = $this->createCounterparty(inn: $inn, data: $data);
+        $createDTO = CreateCounterpartyDTO::fromCreateDTO(counterpartyDTO: $DTO, counterpartyApiDTO: $data);
+
+        $counterparty = $this->counterpartyRepository->create(DTO: $createDTO);
 
         $this->counterpartyLogService->logSuccess(counterpartyId: $counterparty->id, message: 'Данные успешно получены.');
 
-        return $this->successResponse(counterparty: $counterparty);
-    }
-
-    // Сохраняем в БД
-    private function createCounterparty(string $inn, array $data): Counterparty
-    {
-        return $this->counterpartyRepository->create(
-            userId: auth()->id(),
-            inn: $inn,
-            name: $data['name'],
-            ogrn: $data['ogrn'],
-            address: $data['address']
-        );
+        return CounterpartyServiceResponseDTO::success(counterparty: $counterparty);
     }
 
     // Получение и обработка результата
-    private function getCompanyByInn(string $inn): ?array
+    private function getCompanyByInn(int $userId, string $inn): ?CounterpartyApiDTO
     {
         try {
             $response = $this->sendData(inn: $inn);
 
             if (!$response->successful()) {
-                $this->counterpartyLogService->logError(message: 'Ошибка DaData. Статус: ' . $response->status());
+                $this->counterpartyLogService->logError(userId: $userId, inn: $inn, message: 'Ошибка DaData. Статус: ' . $response->status());
                 return null;
             }
 
-            return $this->parseResponse(response: $response, inn: $inn);
+            return $this->parseResponse(response: $response, userId: $userId, inn: $inn);
 
         } catch (\Exception $exception) {
-            $this->counterpartyLogService->logError(message: 'Исключение при запросе DaData: ' . $exception->getMessage());
+            $this->counterpartyLogService->logError(userId: $userId, inn: $inn, message: 'Исключение при запросе DaData: ' . $exception->getMessage());
             return null;
         }
+    }
+
+    // Парсим результат
+    private function parseResponse(Response $response, int $userId, string $inn): ?CounterpartyApiDTO
+    {
+        $suggestions = $response->json('suggestions');
+
+        if (empty($suggestions)) {
+            $this->counterpartyLogService->logError(userId: $userId, inn: $inn, message: 'Данные по ИНН не найдены.');
+            return null;
+        }
+
+        if (!isset($suggestions[0]['data'])) {
+            $this->counterpartyLogService->logError(userId: $userId, inn: $inn, message: 'Некорректный формат ответа от DaData.');
+            return null;
+        }
+
+        $data = $suggestions[0]['data'];
+
+        return CounterpartyApiDTO::fromApiResponse(data: $data);
     }
 
     // Запрос на получение данных
@@ -75,34 +88,5 @@ class CounterpartyService
             'Content-Type' => 'application/json',
             'Accept' => 'application/json'
         ])->post($this->url . '/suggestions/api/4_1/rs/findById/party', ['query' => $inn]);
-    }
-
-    // Парсим результат
-    private function parseResponse(Response $response, string $inn): ?array
-    {
-        $suggestions = $response->json('suggestions');
-
-        if (empty($suggestions)) {
-            $this->counterpartyLogService->logError(message: 'Данные по ИНН: ' . $inn . ' не найдены.');
-            return null;
-        }
-
-        $data = $suggestions[0]['data'];
-
-        return [
-            'name' => $data['name']['short_with_opf'] ?? null,
-            'ogrn' => $data['ogrn'] ?? null,
-            'address' => $data['address']['unrestricted_value'] ?? null,
-        ];
-    }
-
-    private function successResponse(Counterparty $counterparty): array
-    {
-        return ['success' => true, 'data' => $counterparty];
-    }
-
-    private function errorResponse(string $message): array
-    {
-        return ['success' => false, 'message' => $message, 'code' => 404];
     }
 }

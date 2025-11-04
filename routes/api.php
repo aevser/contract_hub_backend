@@ -9,7 +9,8 @@ Route::prefix('v1')->group(function () {
         Route::get('counterparties', [V1\CounterpartyController::class, 'index'])->name('counterparties.index');
 
         // Создание контрагента ( инн )
-        Route::post('counterparty', [V1\CounterpartyController::class, 'store'])->name('counterparties.store');
+        Route::post('counterparty', [V1\CounterpartyController::class, 'store'])->name('counterparties.store')
+            ->middleware('throttle:20,1');
     });
 
     // Регистрация

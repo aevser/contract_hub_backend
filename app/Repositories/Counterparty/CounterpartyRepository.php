@@ -3,6 +3,7 @@
 namespace App\Repositories\Counterparty;
 
 use App\Constants\PaginationAndSort;
+use App\DTO\Counterparty\CreateCounterpartyDTO;
 use App\Models\Counterparty\Counterparty;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -21,9 +22,9 @@ class CounterpartyRepository
             ->paginate($filters['perPage'] ?? PaginationAndSort::PAGINATION_PER_PAGE);
     }
 
-    public function create(int $userId, string $inn, string $name, string $ogrn, string $address): Counterparty
+    public function create(CreateCounterpartyDTO $DTO): Counterparty
     {
-        $counterparty = $this->counterparty->query()->create(['user_id' => $userId, 'inn' => $inn, 'name' => $name, 'ogrn' => $ogrn, 'address' => $address]);
+        $counterparty = $this->counterparty->query()->create($DTO->toArray());
 
         return $counterparty->fresh(self::RELATIONS);
     }
