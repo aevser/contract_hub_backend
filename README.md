@@ -4,19 +4,16 @@ API для управления контрагентами с поддержко
 
 ## Быстрый старт
 
-### 1. Запуск Docker-контейнеров
+### 0. Клонирование репозитория
 ```bash
-docker-compose up -d --build
+git clone <ссылка-на-репозиторий>
+cd contract_hub_backend
 ```
 
-### 2. Установка зависимостей
+### 1. Создание .env файла
 ```bash
-docker exec -it contract_hub_app cp .env.example .env
-docker exec -it contract_hub_app composer install
-docker exec -it contract_hub_app php artisan key:generate
+cp .env.example .env
 ```
-
-### 3. Настройка окружения
 
 Настройки БД в `.env`:
 ```env
@@ -26,6 +23,17 @@ DB_PORT=5432
 DB_DATABASE=contract_hub_db
 DB_USERNAME=contract_hub_user
 DB_PASSWORD=8rip88lizL
+```
+
+### 2. Запуск Docker-контейнеров
+```bash
+docker-compose up -d --build
+```
+
+### 3. Установка зависимостей
+```bash
+docker exec -it contract_hub_app composer install
+docker exec -it contract_hub_app php artisan key:generate
 ```
 
 ### 4. Миграции
